@@ -62,7 +62,7 @@ namespace Bankomaten
                             Console.WriteLine("3. Ta ut pengar");
                             Console.WriteLine("4. Logga ut");
 
-                            string menuChoice = Console.ReadLine();
+                            string? menuChoice = Console.ReadLine();
 
                             // Switch case to handle user choice
                             switch (menuChoice)
@@ -74,7 +74,7 @@ namespace Bankomaten
                                     accountsValue = TransferBetweenAccounts(userIndex, accountsName, accountsValue);
                                     break;
                                 case "3":
-                                    WithdrawMoney();
+                                    accountsValue = WithdrawMoney(userIndex, accountsName, accountsValue);
                                     break;
                                 case "4":
                                     loggedIn = false;
@@ -149,27 +149,49 @@ namespace Bankomaten
             }
         }
 
-        // Dummy function to simulate transfer between accounts
+        // Function to transfer money between accounts
         static double[][] TransferBetweenAccounts(int userIndex, string[][] accountsName, double[][] accountsValue)
         {
             int numberOfAccounts = accountsValue[userIndex].Length;
 
+            if(numberOfAccounts < 2)
+            {
+                Console.WriteLine("Du kan inte flytta pengar eftersom du inte har mer än ett konto");
+                return accountsValue;
+            }
+
             Console.WriteLine("Vilket konto vill du flytta pengar från?");
-            int accountOneIndex = Convert.ToInt32(Console.ReadLine());
+            string? inputAccountOne = Console.ReadLine();
+            if(!int.TryParse(inputAccountOne, out int accountOneIndex))
+            {
+                Console.WriteLine("Du inmata inte ett nummer");
+                return accountsValue;
+            }
 
             Console.WriteLine("Vilket konto vill du flytta pengar till?");
-            int accountTwoIndex = Convert.ToInt32(Console.ReadLine());
+            string? inputAccountTwo = Console.ReadLine();
+            if (!int.TryParse(inputAccountTwo, out int accountTwoIndex))
+            {
+                Console.WriteLine("Du inmata inte ett nummer");
+                return accountsValue;
+            }
 
             if (accountOneIndex <= numberOfAccounts && accountTwoIndex <= numberOfAccounts && accountOneIndex > 0 && accountTwoIndex > 0) // Checks if user entered an account index that exists
             {
                 // Asks user how much money to transfer and get the amount of money that is in the accounts
                 Console.WriteLine("Hur mycket pengar vill du flytta?");
-                double valueMove = Convert.ToInt32(Console.ReadLine());
+                string? inputValueMove = Console.ReadLine();
+                if (!double.TryParse(inputValueMove, out double valueMove))
+                {
+                    Console.WriteLine("Du inmata inte ett nummer");
+                    return accountsValue;
+                }
                 valueMove = Math.Round(valueMove, 2);
+
                 double accountOneMoney = accountsValue[userIndex][accountOneIndex - 1];
                 double accountTwoMoney = accountsValue[userIndex][accountTwoIndex - 1];
 
-                if (valueMove <= accountOneMoney && valueMove > 0) // Checks if transfer transfer is possible
+                if (valueMove <= accountOneMoney && valueMove > 0) // Checks if transfer is possible
                 {
                     //Transfers money and updates the account values
                     accountOneMoney -= valueMove;
@@ -217,13 +239,63 @@ namespace Bankomaten
                 Console.WriteLine("Det blev fel vid val av konton");
                 return accountsValue;
             }
-
         }
 
-        // Dummy function to simulate withdrawing money
-        static void WithdrawMoney()
+        // Function to withdrawing money
+        static double[][] WithdrawMoney(int userIndex, string[][] accountsName, double[][] accountsValue)
         {
+            int numberOfAccounts = accountsValue[userIndex].Length;
 
+            Console.WriteLine("Vilket konto vill du ta ut pengar ifrån?");
+            string? inputAccountIndex = Console.ReadLine();
+            if (!int.TryParse(inputAccountIndex, out int accountIndex))
+            {
+                Console.WriteLine("Du inmata inte ett nummer");
+                return accountsValue;
+            }
+
+            if (accountIndex <= numberOfAccounts && accountIndex > 0)
+            {
+                Console.WriteLine("Hur mycket pengar vill du ta ut?");
+                string? inputValueWithdraw = Console.ReadLine();
+                if (!double.TryParse(inputValueWithdraw, out double valueWithdraw))
+                {
+                    Console.WriteLine("Du inmata inte ett nummer");
+                    return accountsValue;
+                }
+                valueWithdraw = Math.Round(valueWithdraw, 2);
+
+                double accountMoney = accountsValue[userIndex][accountIndex - 1];
+
+                if (valueWithdraw <= accountMoney && valueWithdraw > 0) // Checks if withdrawl is possible
+                {
+                    accountMoney -= valueWithdraw;
+                    accountsValue[userIndex][accountIndex - 1] = accountMoney;
+
+                    Console.WriteLine($"Uttag lyckades! {valueWithdraw:C} togs ut från {accountsName[userIndex][accountIndex - 1]}");
+                    return accountsValue;
+                }
+                else if (valueWithdraw > accountMoney) // if-statements if user entered a invalid amount of money
+                {
+                    Console.WriteLine("Du kan inte ta ut mer pengar än vad som finns");
+                    return accountsValue;
+                }
+                else if (valueWithdraw <= 0)
+                {
+                    Console.WriteLine("Du kan inte ta ut 0 eller mindre pengar");
+                    return accountsValue;
+                }
+                else
+                {
+                    Console.WriteLine("Det blev fel vid val av pengar att flytta");
+                    return accountsValue;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Du kan inte ta ut pengar från ett konto som inte finns");
+                return accountsValue;
+            }
         }
     }
 }
