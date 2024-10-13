@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Bankomaten
 {
@@ -180,12 +181,14 @@ namespace Bankomaten
             {
                 // Asks user how much money to transfer and get the amount of money that is in the accounts
                 Console.WriteLine("Hur mycket pengar vill du flytta?");
+
                 string? inputValueMove = Console.ReadLine();
-                if (!double.TryParse(inputValueMove, out double valueMove))
+                if (!double.TryParse(inputValueMove, NumberStyles.Any, CultureInfo.InvariantCulture, out double valueMove))
                 {
                     Console.WriteLine("Du inmata inte ett nummer");
                     return accountsValue;
                 }
+
                 valueMove = Math.Round(valueMove, 2);
 
                 double accountOneMoney = accountsValue[userIndex][accountOneIndex - 1];
@@ -258,7 +261,7 @@ namespace Bankomaten
             {
                 Console.WriteLine("Hur mycket pengar vill du ta ut?");
                 string? inputValueWithdraw = Console.ReadLine();
-                if (!double.TryParse(inputValueWithdraw, out double valueWithdraw))
+                if (!double.TryParse(inputValueWithdraw, NumberStyles.Any, CultureInfo.InvariantCulture, out double valueWithdraw))
                 {
                     Console.WriteLine("Du inmata inte ett nummer");
                     return accountsValue;
